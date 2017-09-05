@@ -10,7 +10,7 @@ It is intended to be run on a Linux system (although others may work) and will a
 
 It was written on a Ubuntu 17 install.
 
-This script is specifically written for our setup. Here is the basic flow:
+This script is specifically written for our setup and intended to be run as root (or sudo). Here is the basic flow:
 
 1) Detects Zenity or Dialog, fails to text mode if neither exist
 2) Checks to see if you are operating in Remote (nfs) mode or local (local filesystem) mode
