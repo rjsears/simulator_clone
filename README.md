@@ -1,4 +1,7 @@
 # simulator_clone
+V1.0
+September 4th, 2017
+
 Bash script to help automate clonezilla creation and restoration of simulator system images. It can be used to automate the creation and restoration of any images using clonezilla.
 
 This script assumes that you have nfs-common and cloenzilla installed on your local system.
