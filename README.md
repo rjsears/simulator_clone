@@ -23,3 +23,11 @@ This script is specifically written for our setup. Here is the basic flow:
 9) Again, VERY basic error checking to make sure you are not restoring to your boot device
 10) Restores and verifies images
 
+# usage:
+./simulator_clone [create_image | restore_image | help]
+
+
+# todo
+1) Additional Error Checking
+2) Code cleanup
+3) Test mode (test all file and mount points without having to run entire scripts)
