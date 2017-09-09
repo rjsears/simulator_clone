@@ -512,7 +512,6 @@ get_device () {
 		if [ $? = 0 ]; then
 			check_device_available
 			check_device_ifbootdevice
-	#		zenity --info --title="Device Set" --text="Device has been set to:  <b>$userDEV</b>" 2>/dev/null
 		else
 			get_device
 		fi
@@ -538,8 +537,6 @@ get_device () {
 				if [ $? = 0 ]; then
 				check_device_available
 				check_device_ifbootdevice
-	#			dialog --clear --backtitle "Device Set" --title "Device Set"\
-	#			--msgbox "Device has been set to:  $userDEV" 5 50
 				else
 					get_device
 				fi
@@ -556,7 +553,6 @@ get_device () {
 		then
 			check_device_available
 			check_device_ifbootdevice
-	#		echo -e "Device set to ${blue}/dev/$userDEV${nc}"
 		else
 			get_device
 		fi
@@ -582,7 +578,6 @@ get_image_name () {
 	zenity --question --title="Verify Image Name" --text="You entered [ $imageNAME.$now.img ], is this correct?" 2>/dev/null
 		if [ $? = 0 ]; then
 			echo
-#			zenity --info --title="Image Name Set" --text="Your Image name has been set to:\n\n<b>$imageNAME.$now.img</b>" 2>/dev/null
 		else
 			get_image_name
 		fi
@@ -596,7 +591,6 @@ get_image_name () {
 			10 50 2>&1 1>&3);
 
 			if [ $? = 0 ]; then
-			#if test $? -eq 0; then			
 				if [ -z "$imageNAME" ]; then
 					get_image_name
 				fi
@@ -608,8 +602,6 @@ get_image_name () {
 			--yesno "You entered [ $imageNAME.$now.img ], is this correct?" 5 80
 				if [ $? = 0 ]; then
 					echo
-			#	dialog --clear --backtitle "Image Name Set" --title "Image Name Set"\
-			#	--msgbox "Your image name has been set to:\n\n$imageNAME.$now.img" 10 50
 				else
 					get_image_name
 				fi
@@ -624,7 +616,6 @@ get_image_name () {
 		if [[ $REPLY =~ ^[Yy]$ ]]
 		then
 			echo
-		#	echo -e "Image name set to ${blue}$imageNAME.$now.img${nc}"
 		else
 			get_image_name
 		fi
@@ -835,8 +826,7 @@ start_create_image () {
                 This will take some time since we are going to VERIFY the image after creation. \n\n\n \
                 Press CREATE IMAGE to begin....." 20 120 2>/dev/null
 			if [ $? = 0 ]; then
-				echo "We would start our image now"
-				#/usr/sbin/ocs-sr -q2 -j2 -z1p -i 4096 -p choose savedisk $imageNAME.$now.img $userDEV
+				/usr/sbin/ocs-sr -q2 -j2 -z1p -i 4096 -p choose savedisk $imageNAME.$now.img $userDEV
 		else
 			exit 1
 		fi
