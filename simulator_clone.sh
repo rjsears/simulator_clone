@@ -102,10 +102,10 @@ ${nc}"
 ## output.
 
 determine_display () {
-	if [ -x "$(command -v zzenity)" ] && [ $DISPLAY ]; then
+	if [ -x "$(command -v zenity)" ] && [ $DISPLAY ]; then
 	display="zenity"
 	else
-		if [ -x "$(command -v ddialog)" ]; then
+		if [ -x "$(command -v dialog)" ]; then
 		display="dialog"
 		else
 			display=""
@@ -567,7 +567,7 @@ get_image_name () {
 	if [ "$display" == "zenity" ]; then
 	imageNAME=$(zenity --title="Get Image Name" --entry --text "What would you like to name your image?" 2>/dev/null)
 
-			if test $? -eq 0; then			
+			if [ $? = 0 ]; then
 				if [ -z "$imageNAME" ]; then
 					get_image_name
 				fi
@@ -740,9 +740,13 @@ available_images_list () {
                 awk '{print "\n"$0}' | \
          	zenity --list --radiolist --width=500 --height=500 --separator='\n' --title="Available Images" \
                 --text="Select Image To Restore" --column="" --column="Images" 2>/dev/null`
-		
-		if [ -z "$image_selected" ]; then
-        		available_images_list	
+	
+		if [ $? = 0 ]; then	
+			if [ -z "$image_selected" ]; then
+        			available_images_list	
+			fi
+		else
+			exit 1
 		fi
 	else
 		if [ "$display" == "dialog" ]; then
