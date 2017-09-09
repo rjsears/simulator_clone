@@ -1,6 +1,6 @@
 # simulator_clone
-V1.0
-September 4th, 2017
+V1.01
+September 9th, 2017
 
 Bash script to help automate clonezilla creation and restoration of simulator system images. It can be used to automate the creation and restoration of any images using clonezilla.
 
