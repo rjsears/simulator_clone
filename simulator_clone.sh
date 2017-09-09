@@ -6,13 +6,31 @@
 ##
 ## simulator_clone.sh
 ##
-## V1.0
-## September 4th, 2017
+## V1.01
+## September 9th, 2017
 ##
 ## This is a bash script to help automate the creation and restoration
 ## of images to and from SSD/HDDs for our CJ simulator. It is intended
 ## to be run on a bash enabled linux system with nfs capabilities and 
-## clonezilla installed. 
+## clonezilla installed.
+##
+##		REQUIREMENTS
+##  nfs-common
+##  clonezilla
+##  partimage
+##  partclone
+##
+##  All software needs to the the LATEST version otherwise you will get
+##  errors with this script due to some additional flags and capabilities
+##  added in newer versions.
+####################################################################### 
+##
+## 9/9/17
+## Added checks for more software. It seems some distributions
+## do not install all of the required programs (partimage & Parted)
+## when they install clonezilla (apt install clonezilla).
+##
+## Streamlined dialogs
 ##
 #######################################################################
 
@@ -84,10 +102,10 @@ ${nc}"
 ## output.
 
 determine_display () {
-	if [ -x "$(command -v zenity)" ] && [ $DISPLAY ]; then
+	if [ -x "$(command -v zzenity)" ] && [ $DISPLAY ]; then
 	display="zenity"
 	else
-		if [ -x "$(command -v dialog)" ]; then
+		if [ -x "$(command -v ddialog)" ]; then
 		display="dialog"
 		else
 			display=""
@@ -100,30 +118,35 @@ determine_display () {
 ## we need it and exit the script.
 
 is_clonezilla_installed () {
-	if ! [ -x "$(command -v clonezilla)" ]; then
+	if ! [ -x "$(command -v clonezilla)" ] ||
+        !       [ -x "$(command -v partclone.dd)" ] ||
+        !       [ -x "$(command -v partclone.vfat)" ] ||
+        !       [ -x "$(command -v partclone.ntfs)" ] ||
+        !       [ -x "$(command -v partclone.restore)" ] ||
+        !       [ -x "$(command -v partimage)" ]; then
 		if [ "$display" == "dialog" ]; then	
 		dialog	--clear \
-			--backtitle "CLONEZILLA ERROR" \
-			--title "Is Clonezilla installed...?" \
+			--backtitle "SOFTWARE INSTALLATION ERROR" \
+			--title "Is all required software installed...?" \
 			--ok-label "EXIT" \
-			--msgbox "\nClonezilla is required for this script to run. \
-			\n\nPlease install clonezilla locally and rerun this script! \
-			\n\nIf you are running Ubuntu try: apt install clonezilla" \
-			13 70 		
+			--msgbox "\nSpecific software is required for this script to run. \
+			\n\nPlease check the requirements and rerun this script! \
+			\n\n\n\nIf you are running Ubuntu try:\n\napt install clonezilla; apt install partimage; apt install partclone" \
+			15 80 		
 			clear
 		else
 			if [ "$display" == "zenity" ]; then
 			zenity --no-wrap --warning --text="<span size=\"xx-large\"> \
-Clonezilla Installation Error!</span>\n\n\
-Please install Clonezilla locally and run this script again.\n\n\n\
-If you are running Ubuntu try: \n\n<b>apt install clonezilla</b>." \
---title="Clonezilla Error" --ok-label="QUIT" 2>/dev/null			
+Software Installation Error!</span>\n\n\
+Please check software requirements and run this script again.\n\n\n\
+If you are running Ubuntu try: \n\n<b>apt install clonezilla; apt install partimage; apt install partclone</b>." \
+--title="Software Error" --ok-label="QUIT" 2>/dev/null			
 			exit 1
 			fi	
 		clear
 		echo
-		echo -e "${red}ERROR${nc} - Clonezilla does not appear to be installed!." >&2
-		echo "Please install clonezilla locally and rerun script."
+		echo -e "${red}ERROR${nc} - Required software does not appear to be installed!." >&2
+		echo "Please install clonezilla, partimage & partclone locally and rerun script."
 		echo
 		echo -e "${yellow}ABORTING!${nc}"
 		echo
@@ -151,7 +174,7 @@ select_simulator () {
 			else
 			zenity --question --title="Verify Simulator" --text="You entered [ $simulator_selected ], is this correct?" 2>/dev/null
 			if [ $? = 0 ]; then
-				zenity --info --title="Simulator Set" --text="Simulator has been set to:  <b>$simulator_selected</b>" 2>/dev/null
+				echo
 			else
 			select_simulator
 			fi
@@ -183,8 +206,7 @@ select_simulator () {
 				dialog --clear --backtitle "Verify Simulator" --title "Verify Simulator" \
 				--yesno "You entered [ $simulator_selected ], is this correct? \n" 5 50
 				if [ $? = 0 ]; then
-				dialog --clear --backtitle "Simulator Set" --title "Simulator Set"\
-				--msgbox "Simulator has been set to:  $simulator_selected" 5 50
+					echo
 				else
 					select_simulator	
 				fi
@@ -490,7 +512,7 @@ get_device () {
 		if [ $? = 0 ]; then
 			check_device_available
 			check_device_ifbootdevice
-			zenity --info --title="Device Set" --text="Device has been set to:  <b>$userDEV</b>" 2>/dev/null
+	#		zenity --info --title="Device Set" --text="Device has been set to:  <b>$userDEV</b>" 2>/dev/null
 		else
 			get_device
 		fi
@@ -516,8 +538,8 @@ get_device () {
 				if [ $? = 0 ]; then
 				check_device_available
 				check_device_ifbootdevice
-				dialog --clear --backtitle "Device Set" --title "Device Set"\
-				--msgbox "Device has been set to:  $userDEV" 5 50
+	#			dialog --clear --backtitle "Device Set" --title "Device Set"\
+	#			--msgbox "Device has been set to:  $userDEV" 5 50
 				else
 					get_device
 				fi
@@ -534,7 +556,7 @@ get_device () {
 		then
 			check_device_available
 			check_device_ifbootdevice
-			echo -e "Device set to ${blue}/dev/$userDEV${nc}"
+	#		echo -e "Device set to ${blue}/dev/$userDEV${nc}"
 		else
 			get_device
 		fi
@@ -557,9 +579,10 @@ get_image_name () {
 				exit 1
 			fi
 
-	zenity --question --title="Verify Image Name" --text="You entered [ $imageNAME ], is this correct?" 2>/dev/null
+	zenity --question --title="Verify Image Name" --text="You entered [ $imageNAME.$now.img ], is this correct?" 2>/dev/null
 		if [ $? = 0 ]; then
-			zenity --info --title="Image Name Set" --text="Your Image name has been set to:\n\n<b>$imageNAME.$now.img</b>" 2>/dev/null
+			echo
+#			zenity --info --title="Image Name Set" --text="Your Image name has been set to:\n\n<b>$imageNAME.$now.img</b>" 2>/dev/null
 		else
 			get_image_name
 		fi
@@ -582,10 +605,11 @@ get_image_name () {
 			fi
 				
 			dialog --clear --backtitle "Verify Image Name" --title "Verify Image Name" \
-			--yesno "You entered [ $imageNAME ], is this correct?" 5 50
+			--yesno "You entered [ $imageNAME.$now.img ], is this correct?" 5 80
 				if [ $? = 0 ]; then
-				dialog --clear --backtitle "Image Name Set" --title "Image Name Set"\
-				--msgbox "Your image name has been set to:\n\n$imageNAME.$now.img" 10 50
+					echo
+			#	dialog --clear --backtitle "Image Name Set" --title "Image Name Set"\
+			#	--msgbox "Your image name has been set to:\n\n$imageNAME.$now.img" 10 50
 				else
 					get_image_name
 				fi
@@ -594,12 +618,13 @@ get_image_name () {
 	echo -e -n "What would you like to name your image? "
 	read imageNAME
 	echo
-	echo -e -n "You entered [${blue}$imageNAME${nc}], is this correct? "
+	echo -e -n "You entered [${blue}$imageNAME.$now.img${nc}], is this correct? "
 	read -n 1 -r
         	echo
 		if [[ $REPLY =~ ^[Yy]$ ]]
 		then
-			echo -e "Image name set to ${blue}$imageNAME.$now.img${nc}"
+			echo
+		#	echo -e "Image name set to ${blue}$imageNAME.$now.img${nc}"
 		else
 			get_image_name
 		fi
