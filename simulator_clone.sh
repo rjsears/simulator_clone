@@ -2,12 +2,12 @@
 
 #######################################################################
 ## Richard J. Sears
-## richard@sears.net
+## richardjsears@gmail.com
 ##
 ## simulator_clone.sh
 ##
-## V1.01
-## September 9th, 2017
+## V1.02
+## June 1st, 2025
 ##
 ## This is a bash script to help automate the creation and restoration
 ## of images to and from SSD/HDDs for our CJ simulator. It is intended
